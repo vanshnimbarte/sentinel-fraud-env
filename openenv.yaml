@@ -1,0 +1,25 @@
+name: sentinel-fraud-investigation
+version: 1.0.0
+spec_version: "0.1"
+description: >
+  Multi-step financial crime investigation environment.
+  LLM agent gathers evidence strategically under budget
+  constraints before making a fraud ruling.
+tags:
+  - fraud-detection
+  - finance
+  - multi-step-reasoning
+tasks:
+  - id: easy_investigation
+    description: Card testing attack detection
+    max_steps: 10
+  - id: medium_investigation
+    description: Account takeover with red herring
+    max_steps: 10
+  - id: hard_investigation
+    description: Synthetic identity bust-out fraud
+    max_steps: 12
+action_space: text
+observation_space: text
+reward_range: [-10.0, 10.0]
+entry_point: "environment:app"
