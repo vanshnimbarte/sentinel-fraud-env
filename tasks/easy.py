@@ -8,7 +8,7 @@ ALERT: Suspicious activity detected on Account #847291
 - Account age: 12 days
 - All transactions approved
 """,
-    "ground_truth": "FRAUD",
+    "ground_truth": "FRAUD_LOW_RISK",
     "fraud_type": "card_testing",
     "evidence_map": {
         "QUERY_HISTORY": {
@@ -43,7 +43,7 @@ ALERT: Suspicious activity detected on Account #847291
 }
 
 def grade(actions_taken: list, final_ruling: str, steps_used: int) -> float:
-    if final_ruling != "FRAUD":
+    if final_ruling != "FRAUD_LOW_RISK":
         return 0.0
     if steps_used <= 3:
         efficiency = 1.0

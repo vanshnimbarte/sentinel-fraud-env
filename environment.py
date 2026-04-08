@@ -26,7 +26,7 @@ VALID_BASE_COMMANDS = [
     "QUERY_HISTORY","CHECK_DEVICE","VERIFY_LOCATION",
     "CROSS_REF_NETWORK","CHECK_IDENTITY","ANALYZE_VELOCITY"
 ]
-VALID_RULINGS = ["FRAUD", "LEGITIMATE", "ESCALATE"]
+VALID_RULINGS = ["FRAUD_LOW_RISK", "FRAUD_MEDIUM_RISK", "FRAUD_HIGH_RISK", "LEGITIMATE", "ESCALATE"]
 
 def build_text(alert, evidence, budget):
     text = f"{alert}\n\n--- EVIDENCE GATHERED ---\n"
@@ -38,7 +38,7 @@ def build_text(alert, evidence, budget):
     text += f"\n--- BUDGET: {budget} queries remaining ---\n"
     text += "\nAvailable: QUERY_HISTORY, CHECK_DEVICE, VERIFY_LOCATION, "
     text += "CROSS_REF_NETWORK, CHECK_IDENTITY, ANALYZE_VELOCITY, "
-    text += "RULE FRAUD, RULE LEGITIMATE, RULE ESCALATE"
+    text += "RULE FRAUD_LOW_RISK, RULE FRAUD_MEDIUM_RISK, RULE FRAUD_HIGH_RISK, RULE LEGITIMATE, RULE ESCALATE"
     return text
 
 @app.post("/reset")
@@ -73,7 +73,7 @@ async def step(session_id: str, action: InvestigationAction):
         ruling = cmd.split(" ", 1)[1].strip()
         if ruling not in VALID_RULINGS:
             reward = -0.5
-            obs_text = f"Invalid ruling. Use: RULE FRAUD / RULE LEGITIMATE / RULE ESCALATE"
+            obs_text = f"Invalid ruling. Use: RULE FRAUD_LOW_RISK / RULE FRAUD_MEDIUM_RISK / RULE FRAUD_HIGH_RISK / RULE LEGITIMATE / RULE ESCALATE"
         else:
             s["final_ruling"] = ruling
             s["done"] = True

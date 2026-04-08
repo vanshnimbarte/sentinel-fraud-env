@@ -8,7 +8,7 @@ ALERT: Multiple high-value transactions on Account #992341
 - Credit score: 720 (built gradually over 14 months)
 Customer has been a good payer. Transactions seem unusual but account is established.
 """,
-    "ground_truth": "FRAUD",
+    "ground_truth": "FRAUD_HIGH_RISK",
     "fraud_type": "synthetic_identity_bustout",
     "evidence_map": {
         "CHECK_IDENTITY": {
@@ -46,7 +46,7 @@ Customer has been a good payer. Transactions seem unusual but account is establi
 }
 
 def grade(actions_taken: list, final_ruling: str, steps_used: int) -> float:
-    if final_ruling != "FRAUD":
+    if final_ruling != "FRAUD_HIGH_RISK":
         return 0.0
     required_evidence = {"CHECK_IDENTITY", "QUERY_HISTORY", "CROSS_REF_NETWORK"}
     found = len(required_evidence.intersection(set(actions_taken)))
