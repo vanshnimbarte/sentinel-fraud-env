@@ -132,6 +132,11 @@ async def state(session_id: str):
         total_reward=round(s["total_reward"], 2)
     )
 
+@app.get("/")
+async def root():
+    return {"status": "ok", "message": "SENTINEL Fraud Investigation Environment", 
+            "tasks": list(TASKS.keys()), "docs": "/docs"}
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "tasks": list(TASKS.keys())}
