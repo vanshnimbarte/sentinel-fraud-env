@@ -8,7 +8,8 @@ ALERT: Large transaction flagged on Account #221847
 - Transaction time: 2:17 AM local
 This is an established customer. Proceed carefully.
 """,
-    "ground_truth": "FRAUD_MEDIUM_RISK",
+    "ground_truth": "FRAUD",
+        "risk_level": "MEDIUM",
     "fraud_type": "account_takeover",
     "evidence_map": {
         "CHECK_DEVICE": {
@@ -45,7 +46,7 @@ This is an established customer. Proceed carefully.
 }
 
 def grade(actions_taken: list, final_ruling: str, steps_used: int) -> float:
-    if final_ruling != "FRAUD_MEDIUM_RISK":
+    if final_ruling != "FRAUD":
         return 0.0
     smoking_guns = {"CHECK_DEVICE", "VERIFY_LOCATION", "CHECK_IDENTITY"}
     evidence_found = len(smoking_guns.intersection(set(actions_taken)))

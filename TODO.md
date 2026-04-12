@@ -1,21 +1,20 @@
-# HF CLI Installation & Spaces Prep (Complete)
+# Fraud Risk Level Categorization (3 Levels per Fraud Type)
+## Plan Steps
 
-**Completed:**
-- [x] Updated requirements.txt with huggingface_hub[cli]>=0.25.0
-- [x] pip install -r requirements.txt (successful; deps incl. CLI installed)
+### 1. Update models.py [x]
 
-**Status:** ✅ Official HF CLI Skill installed. AI agents can manage Spaces.
+### 2. Update tasks/*.py [x]
+- Standardized ground_truth='FRAUD'
+- Added CASE['risk_level'] = 'EASY|MEDIUM|HARD'
 
-**Verify & Use:**
-1. Check Python version: `python --version` (expect 3.14 from paths).
-2. Add Scripts to PATH (temp): `set PATH=%PATH%;C:\Users\vansh\AppData\Local\Python\pythoncore-3.14-64\Scripts`
-3. Test: `huggingface-cli --help`
-4. Login: `huggingface-cli login`
-5. Create Space: `huggingface-cli repo create sentinel-fraud-env --type space`
+### 3. Update environment.py
 
-**Notes:**
-- PATH warnings fixed via set/export.
-- Project Spaces-ready (verified: Dockerfile port 7860, FastAPI endpoints, env vars).
-- No [cli] extra needed (integrated in huggingface_hub >=0.16).
+### 4. Update inference.py [x]
+- Prompt updated for risk reasoning
 
-**Deploy:** git remote add origin <space-url>; git push.
+### 5. Test & Deploy [x]
+
+**Progress:**
+- [x] 1. models.py
+- [x] 2. tasks/*.py
+- [x] 3. environment.py (added dynamic/static risk_level on RULE FRAUD, simplified rulings)

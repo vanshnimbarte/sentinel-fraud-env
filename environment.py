@@ -26,7 +26,7 @@ VALID_BASE_COMMANDS = [
     "QUERY_HISTORY","CHECK_DEVICE","VERIFY_LOCATION",
     "CROSS_REF_NETWORK","CHECK_IDENTITY","ANALYZE_VELOCITY"
 ]
-VALID_RULINGS = ["FRAUD_LOW_RISK", "FRAUD_MEDIUM_RISK", "FRAUD_HIGH_RISK", "LEGITIMATE", "ESCALATE"]
+VALID_RULINGS = ["FRAUD", "LEGITIMATE", "ESCALATE"]
 
 def build_text(alert, evidence, budget):
     text = f"{alert}\n\n--- EVIDENCE GATHERED ---\n"
@@ -38,7 +38,7 @@ def build_text(alert, evidence, budget):
     text += f"\n--- BUDGET: {budget} queries remaining ---\n"
     text += "\nAvailable: QUERY_HISTORY, CHECK_DEVICE, VERIFY_LOCATION, "
     text += "CROSS_REF_NETWORK, CHECK_IDENTITY, ANALYZE_VELOCITY, "
-    text += "RULE FRAUD_LOW_RISK, RULE FRAUD_MEDIUM_RISK, RULE FRAUD_HIGH_RISK, RULE LEGITIMATE, RULE ESCALATE"
+    text += "RULE FRAUD, RULE LEGITIMATE, RULE ESCALATE"
     return text
 
 @app.post("/reset")
@@ -73,9 +73,26 @@ async def step(session_id: str, action: InvestigationAction):
         ruling = cmd.split(" ", 1)[1].strip()
         if ruling not in VALID_RULINGS:
             reward = -0.5
-            obs_text = f"Invalid ruling. Use: RULE FRAUD_LOW_RISK / RULE FRAUD_MEDIUM_RISK / RULE FRAUD_HIGH_RISK / RULE LEGITIMATE / RULE ESCALATE"
+            obs_text = f"Invalid ruling. Use: RULE FRAUD / RULE LEGITIMATE / RULE ESCALATE"
         else:
             s["final_ruling"] = ruling
+            if ruling == "FRAUD":
+                # Dynamic + static risk
+                case_risk = s["case"].get("risk_level", "UNKNOWN")
+                if s["evidence"]:
+                    avg_info = sum(e.informativeness for e in s["evidence"]) / len(s["evidence"])
+                    if avg_info > 0.8:
+                        dynamic_risk = "HARD"
+                    elif avg_info > 0.5:
+                        dynamic_risk = "MEDIUM"
+                    else:
+                        dynamic_risk = "EASY"
+                else:
+                    dynamic_risk = case_risk
+                s["risk_level"] = f"{case_risk} ({dynamic_risk})"
+                obs_text = f"Case closed. Ruling: FRAUD (Risk: {s['risk_level']}). Score calc..."
+            else:
+                obs_text = f"Case closed. Ruling: {ruling}"
             s["done"] = True
             score = GRADERS[s["task_id"]](s["actions_taken"], ruling, len(s["actions_taken"]))
             reward = score * 10
@@ -83,7 +100,8 @@ async def step(session_id: str, action: InvestigationAction):
             obs = FraudObservation(
                 alert=case["alert"], evidence=s["evidence"],
                 budget_remaining=s["budget"], step_count=len(s["actions_taken"]),
-                text=f"Case closed. Ruling: {ruling}. Score: {score:.2f}"
+                risk_level=s.get("risk_level"),
+                text=f"{obs_text}. Score: {score:.2f}"
             )
             return {"session_id": session_id, "observation": obs,
                     "reward": round(reward, 2), "done": True, "score": score}
@@ -128,7 +146,8 @@ async def state(session_id: str):
         return JSONResponse(status_code=404, content={"error": "Session not found"})
     return EnvironmentState(
         case_id=s["case"]["case_id"], task_id=s["task_id"],
-        ground_truth="[HIDDEN]", is_done=s["done"],
+        ground_truth="[HIDDEN]", risk_level=s.get("risk_level"),
+        is_done=s["done"],
         total_reward=round(s["total_reward"], 2)
     )
 
